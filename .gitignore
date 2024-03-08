@@ -4,3 +4,4 @@ __pycache__
 *.tsv
 *.npy
 .ipynb_checkpoints
+*.index
