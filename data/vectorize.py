@@ -9,7 +9,8 @@ import faiss
 
 
 d = 768
-index = faiss.IndexFlatIP(d)
+# index = faiss.IndexFlatIP(d)
+index = faiss.read_index("biovecs.index")
 
 
 tokenizer = tre.Tokenizer("microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext")
@@ -26,7 +27,7 @@ names = df.loc[:,'name'].to_list()
 
 
 chunk_len = 512
-last = 0
+last = index.ntotal
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # tokenizer = tokenizer.to(device)
