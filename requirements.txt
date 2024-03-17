@@ -8,3 +8,5 @@ ollama
 faiss_gpu
 scikit-learn
 transformers_embedder
+datasets
+bioc
