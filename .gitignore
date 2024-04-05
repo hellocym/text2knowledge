@@ -1,7 +1,10 @@
 .DS_Store
 .vscode
 __pycache__
+examples/mecfs_longcovid
 *.tsv
 *.npy
 .ipynb_checkpoints
 *.index
+**/data/
+**/tmp/
