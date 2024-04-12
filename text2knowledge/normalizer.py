@@ -1,4 +1,4 @@
-·import argparse
+import argparse
 import os
 import pdb
 import pickle
@@ -129,6 +129,77 @@ def normalize(args):
             })
 
     return output
+
+class Normalizer:
+    def __init__(self, args):
+        self.biosyn = BioSyn(
+            max_length=25,
+            use_cuda=args.use_cuda
+        )
+        self.args = args
+        
+    def normalize(self, mention):
+        # load biosyn model
+        biosyn = self.biosyn
+        args = self.args
+
+        biosyn.load_model(model_name_or_path=args.model_name_or_path)
+        # preprocess mention
+        mention = TextPreprocess().run(mention)
+
+        # embed mention
+        mention_sparse_embeds = biosyn.embed_sparse(names=[mention])
+        mention_dense_embeds = biosyn.embed_dense(names=[mention])
+
+        output = {
+            'mention': mention,
+        }
+
+        if args.show_embeddings:
+            output = {
+                'mention': mention,
+                'mention_sparse_embeds': mention_sparse_embeds.squeeze(0),
+                'mention_dense_embeds': mention_dense_embeds.squeeze(0)
+            }
+
+        if args.show_predictions:
+            if args.dictionary_path == None:
+                print('insert the dictionary path')
+                return
+
+            # cache or load dictionary
+            dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary(biosyn, args.model_name_or_path, args.dictionary_path)
+
+            # calcuate score matrix and get top 5
+            sparse_score_matrix = biosyn.get_score_matrix(
+                query_embeds=mention_sparse_embeds,
+                dict_embeds=dict_sparse_embeds
+            )
+            dense_score_matrix = biosyn.get_score_matrix(
+                query_embeds=mention_dense_embeds,
+                dict_embeds=dict_dense_embeds
+            )
+            sparse_weight = biosyn.get_sparse_weight().item()
+            hybrid_score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
+            hybrid_candidate_idxs = biosyn.retrieve_candidate(
+                score_matrix = hybrid_score_matrix, 
+                topk = 5
+            )
+
+            # get predictions from dictionary
+            predictions = dictionary[hybrid_candidate_idxs].squeeze(0)
+            output['predictions'] = []
+
+            for prediction in predictions:
+                predicted_name = prediction[0]
+                predicted_id = prediction[1]
+                output['predictions'].append({
+                    'name': predicted_name,
+                    'id': predicted_id
+                })
+
+        return output
+
 
 if __name__ == '__main__':
     args = parse_args()
