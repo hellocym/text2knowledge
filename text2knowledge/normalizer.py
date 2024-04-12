@@ -136,6 +136,7 @@ class Normalizer:
             max_length=25,
             use_cuda=args.use_cuda
         )
+        self.biosyn.load_model(model_name_or_path=args.model_name_or_path)
         self.args = args
         
     def normalize(self, mention):
@@ -143,7 +144,7 @@ class Normalizer:
         biosyn = self.biosyn
         args = self.args
 
-        biosyn.load_model(model_name_or_path=args.model_name_or_path)
+        
         # preprocess mention
         mention = TextPreprocess().run(mention)
 
