@@ -33,3 +33,4 @@ class BioBERT:
         D, I = self.index.search(q, top_k)  # D for simularity, I for index
         E = [self.entities.loc[:,'name'][idx] for idx in I]  # E for entity names
         return D, I, E
+    
