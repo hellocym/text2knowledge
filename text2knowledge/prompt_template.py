@@ -2,7 +2,7 @@ ENTITY_EXTRACTION_PROMPT_TEMPLATE = """
 To ensure the analysis is both comprehensive and accurate, it is crucial to identify and categorize biomedical entities from the text strictly according to the provided categories. Your output should only include entities that fit into the following categories: 'Gene', 'Protein', 'Compound', 'Disease', 'Symptom', 'Pathway', 'Anatomy', 'Metabolite', 'MolecularFunction', 'BiologicalProcess', 'CellularComponent'. Any entities that do not align with these categories must be omitted.
 
 For each identified entity, detail the following in a JSON list format:
-- Entity name (it must be a biomedical entity fitting into the provided categories)
+- Entity name (it must be a biomedical entity precisely fitting into the provided categories)
 - Confidence score from 1 to 5, with 5 being the highest
 - The applicable category from the provided list
 
