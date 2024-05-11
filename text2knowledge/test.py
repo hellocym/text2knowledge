@@ -44,7 +44,7 @@ for data in datas['test']:
             entity['DBID'] = ID
             entities_ans_normalized.append(entity)
 
-        score = calc_score(entities_extracted_normalized, entities_ans_normalized)  # TODO
+        score = calc_score(entities_extracted_normalized, entities_ans_normalized, abstract, abstract_offset)  # TODO
         scores.append(score)
 
         # disease_entities_extracted = [e for e in entities_extracted if e['category'] == 'Disease']
@@ -56,3 +56,57 @@ for data in datas['test']:
         print("No entities found.")
 
 
+def find_substring_indices(text, substring):
+    indices = []
+    index = text.find(substring)
+    while index != -1:
+        indices.append(index)
+        index = text.find(substring, index + 1)
+    return indices
+
+def overlap(r1, r2):
+    if r1[1] >= r2[0] and r1[0] <= r2[1]:
+        return True
+    return False
+
+def calc_score(extracted, gt, text, offset):
+    # get occurance of extracted entities in text
+    for entity in extracted:
+        name = entity['entity']
+        occur = [[i+offset, i+offset+len(name)] for i in find_substring_indices(text, name)]
+        entity['offsets'] = occur
+    COR = 0
+    INC = 0
+    MIS = 0
+    SPU = 0
+    for entity in gt:
+        is_COR = False
+        is_MIS = True
+        loc = entity['offsets'][0]
+        for e in extracted:
+            for o in e['offsets']:
+                if overlap(loc, o):
+                    is_MIS = False
+                    if e['DBID'] == entity['DBID']:
+                        is_COR = True
+        if is_MIS:
+            MIS += 1
+        elif is_COR:
+            COR += 1
+        else:
+            INC += 1
+    for entity in extracted:
+        is_SPU = True
+        locs = entity['offsets']
+        for o in loc:
+            for e in gt:
+                if overlap(o, e['offsets'][0]):
+                    is_SPU = False
+        if is_SPU:
+            SPU += 1
+    POS = COR + INC + MIS
+    ACT = COR + INC + SPU
+    P = COR / ACT
+    R = COR / POS
+    F1 = 2 * P * R / (P + R)
+    return F1
