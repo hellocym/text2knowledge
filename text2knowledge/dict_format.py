@@ -20,6 +20,24 @@ def get_text(row):
         return f"{row['id']}||{row['name']}"
     else:
         return f"{row['id']}||{row['name']}|{row['synonyms']}"
+    
+    
+def merge(rd, dd):
+    merged = ""
 
-if __name__ == "__main__":
-    formatter("~/text2knowledge/data/entities.tsv", "" )
+    with open(rd, "r") as f1, open(dd, "r") as f2:
+        lines1 = f1.read().split("\n")
+        lines2 = f2.read().split("\n")
+        data1 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines1}
+        data2 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines2}
+        for key, value_list in data2.items():
+            if key in data1:
+                data1[key] = list(set(data1[key] + value_list))
+            else:
+                data1[key] = value_list
+        for k, v in data1.items():
+            line = f"{k}||" + "|".join(v) + "\n"
+            merged += line
+
+    with open(rd, "w") as f:
+        f.write(merged)
