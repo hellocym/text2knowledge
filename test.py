@@ -101,8 +101,9 @@ for data in datas['test']:
     }
 
     score = 0
-    #with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
-    entities_extracted = extract_concepts(abstract, model=model_name, metadata=metadata)
+    
+    with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
+        entities_extracted = extract_concepts(abstract, model=model_name, metadata=metadata)
     
     
     if entities_extracted:
