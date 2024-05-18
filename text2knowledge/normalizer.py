@@ -8,6 +8,14 @@ from biosyn import (
     TextPreprocess
 )
 
+class NormArg:
+    def __init__(self, model_name_or_path, dictionary_path):
+        self.model_name_or_path = model_name_or_path
+        self.show_embeddings = False
+        self.show_predictions = True
+        self.dictionary_path = dictionary_path
+        self.use_cuda = True
+
 def parse_args():
     """
     Parse input arguments
@@ -138,12 +146,15 @@ class Normalizer:
         )
         self.biosyn.load_model(model_name_or_path=args.model_name_or_path)
         self.args = args
+        # cache or load dictionary
+        self.dictionary, self.dict_sparse_embeds, self.dict_dense_embeds = cache_or_load_dictionary(self.biosyn, args.model_name_or_path, args.dictionary_path)
+
         
     def normalize(self, mention):
         # load biosyn model
         biosyn = self.biosyn
         args = self.args
-
+        dictionary, dict_sparse_embeds, dict_dense_embeds = self.dictionary, self.dict_sparse_embeds, self.dict_dense_embeds
         
         # preprocess mention
         mention = TextPreprocess().run(mention)
@@ -169,7 +180,7 @@ class Normalizer:
                 return
 
             # cache or load dictionary
-            dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary(biosyn, args.model_name_or_path, args.dictionary_path)
+            # dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary(biosyn, args.model_name_or_path, args.dictionary_path)
 
             # calcuate score matrix and get top 5
             sparse_score_matrix = biosyn.get_score_matrix(
