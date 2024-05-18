@@ -28,8 +28,8 @@ def merge(rd, dd):
     with open(rd, "r") as f1, open(dd, "r") as f2:
         lines1 = f1.read().split("\n")
         lines2 = f2.read().split("\n")
-        data1 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines1}
-        data2 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines2}
+        data1 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines1 if l}
+        data2 = {l.split("||")[0]:l.split("||")[1].split("|") for l in lines2 if l}
         for key, value_list in data2.items():
             if key in data1:
                 data1[key] = list(set(data1[key] + value_list))
