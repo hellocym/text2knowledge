@@ -79,7 +79,7 @@ def normalize(name, category):
         model = disease_normalizer
     elif category in ['Compound', 'ChemicalEntity']:
         model = chemical_normalizer
-    elif category in ['Gene', 'CellularComponent', 'GeneOrGeneProduct']:
+    elif category in ['Gene',, 'Protein', 'CellularComponent', 'GeneOrGeneProduct']:
         model = gene_normalizer
     else:
         raise NotImplementedError(f'Unknown category: {category}')
@@ -107,16 +107,20 @@ for data in datas['test']:
     
     
     if entities_extracted:
+        from pprint import pprint
+        pprint([entity for entity in entities_extracted])
         # normalize extracted entities to DB
         entities_extracted_normalized = []
         for entity in entities_extracted:
             name = entity['entity']
             category = entity['category']
-            if category not in ['Gene', 'CellularComponent', 'Compound', 'Disease', 'Symptom']:
+            if category not in ['Gene', 'CellularComponent', 'Compound', 'Disease', 'Symptom', 'Protein']:
                 continue
             ID = normalize(name, category)
             entity['DBID'] = ID
             entities_extracted_normalized.append(entity)
+
+        
 
         # normalize answer to DB as well in order to calc score later
         entities_ans_normalized = []
@@ -140,3 +144,5 @@ for data in datas['test']:
     
     else:
         print("No entities found.")
+
+print(sum(scores) / len(scores))
