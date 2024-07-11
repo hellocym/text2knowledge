@@ -1,4 +1,8 @@
+import re
+import os
 import json
+import contextlib
+from strictjson import strict_json
 import text2knowledge.ollama.client as client
 from text2knowledge.prompt_template import ENTITY_EXTRACTION_PROMPT_TEMPLATE, RELATION_EXTRACTION_PROMPT_TEMPLATE
 
@@ -28,10 +32,16 @@ def graph_prompt(input: str, metadata={}, model="mistral-openorca:latest"):
 
     # USER_PROMPT = f"context: ```{input}``` \n\n output: "
     # response, _ = client.generate(model_name=model, system=RELATION_EXTRACTION_PROMPT_TEMPLATE, prompt=USER_PROMPT)
-
+    
     USER_PROMPT = f"{RELATION_EXTRACTION_PROMPT_TEMPLATE}\n\ncontext: ```{input}``` \n\n output: "
+    # with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
     response, _ = client.generate(model_name=model, prompt=USER_PROMPT)
+    response = response[response.index('['):response.rindex(']')+1]
+    # print(response)
+
     try:
+        
+        # print(response)
         result = json.loads(response)
         result = [dict(item, **metadata) for item in result]
     except:

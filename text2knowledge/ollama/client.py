@@ -18,7 +18,8 @@ def generate(model_name, prompt, system=None, template=None, context=None, optio
             "system": system, 
             "template": template, 
             "context": context, 
-            "options": options
+            "options": options,
+            # "format": "json"
         }
         
         # Remove keys with None values

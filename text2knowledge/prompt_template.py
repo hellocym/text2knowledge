@@ -1,5 +1,5 @@
 ENTITY_EXTRACTION_PROMPT_TEMPLATE = """
-To ensure the analysis is both comprehensive and accurate, it is crucial to identify and categorize biomedical entities from the text strictly according to the provided categories. Your output should only include entities that fit into the following categories: 'Gene', 'Protein', 'Compound', 'Disease', 'Symptom', 'Pathway', 'Anatomy', 'Metabolite', 'MolecularFunction', 'BiologicalProcess', 'CellularComponent'. Any entities that do not align with these categories must be omitted.
+To ensure the analysis is both comprehensive and accurate, it is crucial to identify and categorize biomedical entities from the text strictly according to the provided categories. Your output should only include entities that fit into the following categories: ['Gene', 'Protein', 'Compound', 'Disease', 'Symptom', 'Pathway', 'Anatomy', 'Metabolite', 'MolecularFunction', 'BiologicalProcess', 'CellularComponent']. Any entities that do not align with these categories must be omitted.
 
 For each identified entity, detail the following in a JSON list format:
 - Entity name (it must be a biomedical entity precisely fitting into the provided categories)
@@ -59,6 +59,7 @@ Arguments exist as to the cause of chronic fatigue syndrome (CFS). Some think th
 ]
 
 Remember, adherence to the category list is non-negotiable. Continuous refinement should be based on aligning strictly with the provided categories, improving the accuracy and relevance of identified entities.
+You should ensure the output fits the json format, DO NOT add comments in any forms to category if there are more than one possible answers.
 """
 
 RELATION_EXTRACTION_PROMPT_TEMPLATE = """
