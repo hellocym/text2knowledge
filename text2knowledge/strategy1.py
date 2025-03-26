@@ -2,13 +2,14 @@ import re
 import os
 import json
 import contextlib
-from strictjson import strict_json
-import text2knowledge.ollama.client as client
+# from strictjson import strict_json
+# import text2knowledge.ollama.client as client
+import text2knowledge.openai.client as client
 from text2knowledge.prompt_template import ENTITY_EXTRACTION_PROMPT_TEMPLATE, RELATION_EXTRACTION_PROMPT_TEMPLATE
 
 
-def extract_concepts(prompt: str, metadata={}, model="mistral-openorca:latest"):
-    response, _ = client.generate(model_name=model, system=ENTITY_EXTRACTION_PROMPT_TEMPLATE, prompt=prompt)
+def extract_concepts(prompt: str, metadata={}, model="mistral-openorca:latest", base_url=None):
+    response, _ = client.generate(model_name=model, system=ENTITY_EXTRACTION_PROMPT_TEMPLATE, prompt=prompt, base_url=base_url)
     # prompt = f"{ENTITY_EXTRACTION_PROMPT_TEMPLATE}\n\n{prompt}"
     # response, _ = client.generate(model_name=model, prompt=prompt, options={
     #     "temperature": 0.6,
