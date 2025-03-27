@@ -4,7 +4,7 @@ import requests
 
 # BASE_URL = os.environ.get('OPENAI_API_BASE', 'http://localhost:1234/v1')
 
-def generate(model_name, prompt, system=None, temperature=0.7, max_tokens=-1, stream=False, base_url='http://localhost:1234/v1'):
+def generate(model_name, prompt, system=None, temperature=0.7, max_tokens=-1, stream=False, base_url='http://localhost:1234/v1', response_format=None):
     try:
         url = f"{base_url}/chat/completions"
         
@@ -16,6 +16,7 @@ def generate(model_name, prompt, system=None, temperature=0.7, max_tokens=-1, st
         payload = {
             "model": model_name,
             "messages": messages,
+            "response_format": response_format,
             "temperature": temperature,
             "max_tokens": max_tokens,
             "stream": stream

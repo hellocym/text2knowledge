@@ -62,7 +62,7 @@ Remember, adherence to the category list is non-negotiable. Continuous refinemen
 You should ensure the output fits the json format, DO NOT add comments in any forms to category if there are more than one possible answers.
 """
 
-RELATION_EXTRACTION_PROMPT_TEMPLATE = """
+ORI_RELATION_EXTRACTION_PROMPT_TEMPLATE = """
 You are a network graph maker who extracts terms and their relations from a given context. 
 You are provided with a context chunk (delimited by ```) Your task is to extract the ontology 
 of terms mentioned in the given context. These terms should represent the key concepts as per the context.
@@ -86,6 +86,35 @@ Format your output as a list of json. Each element of the list contains a pair o
        "target_name": "A related concept from extracted ontology",
        "target_type": "The type of the concept, one of Gene, Compound, Disease, Symptom, Pathway, Anatomy, Metabolite, MolecularFunction, BiologicalProcess, CellularComponent.",
        "relation_type": "The type of relation between the two concepts, one of BioMedGPS::AssociatedWith::Gene:Disease, BioMedGPS::Modulator::Compound:Gene, BioMedGPS::Interaction::Gene:Gene, BioMedGPS::VirGeneHumGene::Gene:Gene, BioMedGPS::Activator::Compound:Gene, BioMedGPS::Agonist::Compound:Gene, BioMedGPS::AllostericModulator::Compound:Gene, BioMedGPS::Antagonist::Compound:Gene, BioMedGPS::Antibody::Compound:Gene, BioMedGPS::Binder::Compound:Gene, BioMedGPS::Blocker::Compound:Gene, BioMedGPS::Inhibitor::Compound:Gene, BioMedGPS::AssociatedWith::Compound:Gene, BioMedGPS::Carrier::Compound:Gene, BioMedGPS::Interaction::Compound:Compound, BioMedGPS::Treatment::Compound:Disease, BioMedGPS::AtcClassification::Compound:Atc, BioMedGPS::Binder::Gene:Gene, BioMedGPS::Target::Gene:Disease, BioMedGPS::E+::Compound:Gene, BioMedGPS::E-::Compound:Gene, BioMedGPS::E::Compound:Gene, BioMedGPS::E+::Gene:Gene, BioMedGPS::E::Gene:Gene, BioMedGPS::Promotor::Gene:Disease, BioMedGPS::InComplex::Gene:Gene, BioMedGPS::InPathway::Gene:Gene, BioMedGPS::InTax::Gene:Tax, BioMedGPS::Causer::Compound:Disease, BioMedGPS::Causer::Gene:Disease, BioMedGPS::PharmacoKinetics::Compound:Gene, BioMedGPS::Biomarker::Gene:Disease, BioMedGPS::Biomarker::Compound:Disease, BioMedGPS::Influencer::Gene:Gene, BioMedGPS::SideEffect::Compound:Disease, BioMedGPS::Activator::Gene:Gene, BioMedGPS::Risky::Gene:Disease, BioMedGPS::E-::Anatomy:Gene, BioMedGPS::E::Anatomy:Gene, BioMedGPS::E+::Anatomy:Gene, BioMedGPS::SimilarWith::Compound:Compound, BioMedGPS::E-::Disease:Gene, BioMedGPS::LocatedIn::Disease:Anatomy, BioMedGPS::Present::Disease:Symptom, BioMedGPS::SimilarWith::Disease:Disease, BioMedGPS::E+::Disease:Gene, BioMedGPS::Covary::Gene:Gene, BioMedGPS::InBP::Gene:BiologicalProcess, BioMedGPS::InCC::Gene:CellularComponent, BioMedGPS::InMF::Gene:MolecularFunction, BioMedGPS::InPathway::Gene:Pathway, BioMedGPS::InPC::Compound:PharmacologicClass, BioMedGPS::AdpRibosylationReaction::Gene:Gene, BioMedGPS::AssociatedWith::Gene:Gene, BioMedGPS::CleavageReaction::Gene:Gene, BioMedGPS::InLocation::Gene:Gene, BioMedGPS::DePhosphorylationReaction::Gene:Gene, BioMedGPS::Interaction::Compound:Gene, BioMedGPS::PhosphorylationReaction::Gene:Gene, BioMedGPS::ProteinCleavage::Gene:Gene, BioMedGPS::UbiquitinationReaction::Gene:Gene, BioMedGPS::Inbitor::Gene:Gene, BioMedGPS::PostTranslationalMod::Gene:Gene, BioMedGPS::AssociatedWith::Pathway:Disease, BioMedGPS::AssociatedWith::Gene:Symptom, BioMedGPS::Contraindication::Disease:Compound, BioMedGPS::NE::Anatomy:Gene, BioMedGPS::AssociatedWith::BiologicalProcess:Gene, BioMedGPS::AssociatedWith::BiologicalProcess:Exposure, BioMedGPS::AssociatedWith::CellularComponent:Gene, BioMedGPS::AssociatedWith::CellularComponent:Exposure, BioMedGPS::AssociatedWith::MolecularFunction:Gene, BioMedGPS::AssociatedWith::Gene:Pathway, BioMedGPS::AssociatedWith::Gene:Exposure, BioMedGPS::AssociatedWith::MolecularFunction:Exposure, BioMedGPS::AssociatedWith::Exposure:Disease, BioMedGPS::ParentChild::Anatomy:Anatomy, BioMedGPS::ParentChild::BiologicalProcess:BiologicalProcess, BioMedGPS::ParentChild::CellularComponent:CellularComponent, BioMedGPS::ParentChild::Disease:Disease, BioMedGPS::ParentChild::MolecularFunction:MolecularFunction, BioMedGPS::ParentChild::Pathway:Pathway, BioMedGPS::ParentChild::Symptom:Symptom, BioMedGPS::ParentChild::Exposure:Exposure, BioMedGPS::Absent::Disease:Symptom, BioMedGPS::SideEffect::Compound:Symptom, BioMedGPS::Target::Gene:Compound, BioMedGPS::Transporter::Gene:Compound."
+       "key_sentence": "relationship between the two concepts, node_1 and node_2 in one or two sentences"
+   }, {...}
+]
+"""
+
+RELATION_EXTRACTION_PROMPT_TEMPLATE = """
+You are a network graph maker who extracts terms and their relations from a given context. 
+You are provided with a context chunk (delimited by ```) Your task is to extract the ontology 
+of terms mentioned in the given context. These terms should represent the key concepts as per the context.
+
+Thought 1: While traversing through each sentence, Think about the key terms mentioned in it.
+    Terms may include object, entity, location, organization, person, 
+    condition, acronym, documents, service, concept, etc.
+    Terms should be as atomistic as possible
+
+Thought 2: Think about how these terms can have one on one relation with other terms.
+    Terms that are mentioned in the same sentence or the same paragraph are typically related to each other.
+    Terms can be related to many other terms
+
+Thought 3: Find out the relation between each such related pair of terms. 
+
+Format your output as a list of json. Each element of the list contains a pair of terms and the relation between them, like the following: 
+[
+   {
+       "source_name": "A concept from extracted ontology",
+       "source_type": "The type of the concept, one of ###ENTITY_TYPE###.",
+       "target_name": "A related concept from extracted ontology",
+       "target_type": "The type of the concept, one of ###ENTITY_TYPE###.",
+       "relation_type": "The type of relation between the two concepts, one of ###RELATION_TYPE###."
        "key_sentence": "relationship between the two concepts, node_1 and node_2 in one or two sentences"
    }, {...}
 ]
