@@ -24,7 +24,7 @@ def extract_concepts(prompt: str, metadata={}, model="mistral-openorca:latest", 
     return result
 
 
-def graph_prompt(input: str, metadata={}, model="mistral-openorca:latest"):
+def graph_prompt(input: str, metadata={}, model="mistral-openorca:latest", base_url=None):
     if model == None:
         model = "mistral-openorca:latest"
 
@@ -36,7 +36,7 @@ def graph_prompt(input: str, metadata={}, model="mistral-openorca:latest"):
     
     USER_PROMPT = f"{RELATION_EXTRACTION_PROMPT_TEMPLATE}\n\ncontext: ```{input}``` \n\n output: "
     # with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
-    response, _ = client.generate(model_name=model, prompt=USER_PROMPT)
+    response, _ = client.generate(model_name=model, prompt=USER_PROMPT, base_url=base_url)
     response = response[response.index('['):response.rindex(']')+1]
     # print(response)
 

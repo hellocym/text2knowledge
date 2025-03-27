@@ -4,7 +4,9 @@ __pycache__
 examples/mecfs_longcovid
 *.tsv
 *.npy
+*.json
 .ipynb_checkpoints
 *.index
 **/data/
 **/tmp/
+**/extracted/
