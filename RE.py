@@ -37,16 +37,20 @@ def process_single_data(data, model_name, base_url, index):
 datas = load_dataset("bigbio/biored")
 model_name = 'qwen2.5-7b-instruct-1m'
 base_url = 'http://192.168.31.58:1234/v1'
+# base_url = 'http://10.0.0.230:1234/v1'
 
 # 设置线程池大小
-max_workers = 5  # 可以根据需要调整线程数
+max_workers = 1
 
 with ThreadPoolExecutor(max_workers=max_workers) as executor:
-    # 创建任务列表
-    future_to_index = {
-        executor.submit(process_single_data, data, model_name, base_url, i): i 
-        for i, data in enumerate(datas['test'])
-    }
+    # 创建任务列表，只处理尚未抽取的数据
+    future_to_index = {}
+    for i, data in enumerate(datas['test']):
+        save_path = f'./extracted/biored/test_{i}.json'
+        if not os.path.exists(save_path):
+            future_to_index[executor.submit(process_single_data, data, model_name, base_url, i)] = i
+        else:
+            print(f"Task {i}: File already exists, skipping...")
     
     # 处理完成的任务
     for future in as_completed(future_to_index):

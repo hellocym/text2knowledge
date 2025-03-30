@@ -10,3 +10,4 @@ examples/mecfs_longcovid
 **/data/
 **/tmp/
 **/extracted/
+.conda

@@ -9,12 +9,12 @@ from biosyn import (
 )
 
 class NormArg:
-    def __init__(self, model_name_or_path, dictionary_path):
+    def __init__(self, model_name_or_path, dictionary_path, use_cuda=False):
         self.model_name_or_path = model_name_or_path
         self.show_embeddings = False
         self.show_predictions = True
         self.dictionary_path = dictionary_path
-        self.use_cuda = True
+        self.use_cuda = False
 
 def parse_args():
     """
@@ -144,6 +144,7 @@ class Normalizer:
             max_length=25,
             use_cuda=args.use_cuda
         )
+        # print(args.use_cuda)
         self.biosyn.load_model(model_name_or_path=args.model_name_or_path)
         self.args = args
         # cache or load dictionary

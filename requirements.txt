@@ -2,6 +2,7 @@ click==8.1.7
 pandas==1.5.3
 torch==2.1.2
 transformers==4.29.2
+huggingface_hub<0.26.0
 transformers-embedder==3.0.11
 git+https://github.com/titipata/scipdf_parser
 ollama
@@ -10,3 +11,5 @@ scikit-learn
 transformers_embedder
 datasets
 bioc
+git+https://github.com/dmis-lab/BioSyn.git
+torch==2.0.0

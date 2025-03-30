@@ -1,5 +1,5 @@
 import os, sys
-os.environ['HF_HOME'] = '/autodl-tmp/hf'
+# os.environ['HF_HOME'] = '/autodl-tmp/hf'
 os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
 from datasets import load_dataset
@@ -9,7 +9,6 @@ import json
 import contextlib
 
 datas = load_dataset("bigbio/biored")
-model_name = 'mistral:latest'
 
 
 def find_substring_indices(text, substring):
@@ -70,9 +69,9 @@ def calc_score(extracted, gt, text, offset):
     return F1
 
 
-disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "/root/text2knowledge/data/dictionary/merged/dict_Disease.txt"))
-chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "/root/text2knowledge/data/dictionary/merged/dict_ChemicalCompound.txt"))
-gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "/root/text2knowledge/data/dictionary/merged/dict_Gene.txt"))
+disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=False))
+chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_ChemicalCompound.txt", use_cuda=False))
+gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=False))
 
 def normalize(name, category):
     if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature']:
@@ -88,7 +87,7 @@ def normalize(name, category):
 
 
 scores = []
-for data in datas['test']:
+for i, data in enumerate(datas['test']):
     pmid = data['pmid']
     print(pmid)
     passages = data['passages']
@@ -102,11 +101,9 @@ for data in datas['test']:
 
     score = 0
     
-    # with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
-        # entities_extracted = extract_concepts(abstract, model=model_name, metadata=metadata)
-    entities_extracted = extract_concepts(abstract, model=model_name, metadata=metadata)
-    
-    
+    entities_extracted = json.load(open(f'./extracted/biored/test_{i}.json', 'r'))
+    print(entities_extracted)
+    continue
     if entities_extracted:
         # from pprint import pprint
         # pprint([entity for entity in entities_extracted if ])
