@@ -5,9 +5,9 @@ examples/mecfs_longcovid
 *.tsv
 *.npy
 *.json
+*.txt
 .ipynb_checkpoints
 *.index
-**/data/
 **/tmp/
 **/extracted/
 .conda
