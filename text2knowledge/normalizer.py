@@ -39,7 +39,7 @@ def cache_or_load_dictionary(biosyn, model_name_or_path, dictionary_path):
     dictionary_name = os.path.splitext(os.path.basename(dictionary_path))[0]
     
     cached_dictionary_path = os.path.join(
-        '/root/autodl-tmp/tmp',
+        './tmp',
         f"cached_{model_name_or_path.split('/')[-1]}_{dictionary_name}.pk"
     )
 
