@@ -11,3 +11,4 @@ examples/mecfs_longcovid
 **/tmp/
 **/extracted/
 .conda
+data/dictionary/merged.zip
