@@ -9,7 +9,7 @@ huggingface_hub<0.26.0
 # faiss_gpu
 scikit-learn<1.5
 transformers_embedder
-datasets==2.13
+datasets==2.14.6
 bioc
 git+https://github.com/dmis-lab/BioSyn.git
 torch==2.0.0
