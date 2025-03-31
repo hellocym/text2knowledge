@@ -74,11 +74,11 @@ chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemica
 gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=False))
 
 def normalize(name, category):
-    if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature']:
+    if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
         model = disease_normalizer
     elif category in ['Compound', 'ChemicalEntity']:
         model = chemical_normalizer
-    elif category in ['Gene', 'Protein', 'CellularComponent', 'GeneOrGeneProduct']:
+    elif category in ['Gene', 'Protein', 'CellularComponent', 'GeneOrGeneProduct', 'CellLine', 'SequenceVariant']:
         model = gene_normalizer
     else:
         raise NotImplementedError(f'Unknown category: {category}')
@@ -102,8 +102,8 @@ for i, data in enumerate(datas['test']):
     score = 0
     
     entities_extracted = json.load(open(f'./extracted/biored/test_{i}.json', 'r'))
-    print(entities_extracted)
-    continue
+    # print(entities_extracted)
+    # continue
     if entities_extracted:
         # from pprint import pprint
         # pprint([entity for entity in entities_extracted if ])
@@ -112,8 +112,8 @@ for i, data in enumerate(datas['test']):
         for entity in entities_extracted:
             name = entity['entity']
             category = entity['category']
-            if category not in ['Gene', 'CellularComponent', 'Compound', 'Disease', 'Symptom', 'Protein']:
-                continue
+            # if category not in ['Gene', 'CellularComponent', 'Compound', 'Disease', 'Symptom', 'Protein']:
+            #     continue
             ID = normalize(name, category)
             entity['DBID'] = ID
             entities_extracted_normalized.append(entity)
@@ -125,8 +125,8 @@ for i, data in enumerate(datas['test']):
         for entity in entities:
             name = entity['text'][0]
             category = entity['semantic_type_id']
-            if category not in ['ChemicalEntity', 'DiseaseOrPhenotypicFeature', 'GeneOrGeneProduct']:
-                continue
+            # if category not in ['ChemicalEntity', 'DiseaseOrPhenotypicFeature', 'GeneOrGeneProduct']:
+            #     continue
             ID = normalize(name, category)
             entity['DBID'] = ID
             entities_ans_normalized.append(entity)
