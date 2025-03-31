@@ -27,49 +27,44 @@ def overlap(r1, r2):
         return True
     return False
 
-def calc_score(extracted, gt, text, offset):
+def calc_score(extracted, gt, task='type'):
     # print(offset)
     # get occurance of extracted entities in text
-    for entity in extracted:
-        name = entity['entity']
-        occur = [[i+offset, i+offset+len(name)] for i in find_substring_indices(text, name)]
-        entity['offsets'] = occur
-    COR = 0
-    INC = 0
-    MIS = 0
-    SPU = 0
-    for entity in gt:
-        is_COR = False
-        is_MIS = True
-        loc = entity['offsets'][0]
-        for e in extracted:
-            for o in e['offsets']:
-                if overlap(loc, o):
-                    is_MIS = False
-                    if e['DBID'] == entity['DBID']:
-                        is_COR = True
-        if is_MIS:
-            MIS += 1
-        elif is_COR:
-            COR += 1
-        else:
-            INC += 1
-    for entity in extracted:
-        is_SPU = True
-        locs = entity['offsets']
-        for o in locs:
-            for e in gt:
-                if overlap(o, e['offsets'][0]):
-                    is_SPU = False
-        if is_SPU:
-            SPU += 1
-    POS = COR + INC + MIS
-    ACT = COR + INC + SPU
-    P = COR / ACT
-    R = COR / POS
-    F1 = 2 * P * R / (P + R) if P + R else 0
-    return F1
+    # TP: extracted entity in gt,
+    # FP: extracted entity not in gt,
+    # FN: gt entity not in extracted
+    TP = 0
+    FP = 0
+    FN = 0
 
+    for relation in extracted:
+        # print(relation)
+        source_id = relation['source_id']
+        target_id = relation['target_id']
+        relation_type = relation['relation_type']
+
+        # find the corresponding gt entity
+        gt_entity = [e for e in gt if e['source_id'] == source_id and e['target_id'] == target_id and e['relation_type'] == relation_type]
+        if gt_entity:
+            TP += 1
+        else:
+            FP += 1
+    for relation in gt:
+        source_id = relation['source_id']
+        target_id = relation['target_id']
+        relation_type = relation['relation_type']
+        # find the corresponding gt entity
+        extracted_entity = [e for e in extracted if e['source_id'] == source_id and e['target_id'] == target_id and e['relation_type'] == relation_type]
+        if extracted_entity:
+            pass
+        else:
+            FN += 1
+
+    print(f'TP: {TP}, FP: {FP}, FN: {FN}')
+    # P = TP / (TP + FP) if TP + FP else 0
+    # R = TP / (TP + FN) if TP + FN else 0
+    # F1 = 2 * P * R / (P + R) if P + R else 0
+    return TP, FP, FN
 
 disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=use_cuda))
 chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_Compound.txt", use_cuda=use_cuda))
@@ -91,13 +86,17 @@ def normalize(name, category):
     result = model.normalize(name)
     return result['predictions'][0]['id']
 
+TP = 0
+FP = 0
+FN = 0
 
-scores = []
+# scores = []
 for i, data in enumerate(datas['test']):
     pmid = data['pmid']
-    print(pmid)
+    print('PMID: ', pmid)
     passages = data['passages']
     entities = data['entities']
+    relations = data['relations']
     abstract = passages[1]['text'][0]
     abstract_offset = passages[1]['offsets'][0][0]
     metadata = {
@@ -110,6 +109,7 @@ for i, data in enumerate(datas['test']):
     relations_extracted = json.load(open(f'./extracted/biored/test_{i}.json', 'r'))
     # print(entities_extracted)
     # continue
+    
     if relations_extracted:
         
         # normalize extracted entities to DB
@@ -129,23 +129,35 @@ for i, data in enumerate(datas['test']):
             
             relations_extracted_normalized.append(relation)
 
-        print(relations_extracted_normalized)
-        continue
+        # print(relations_extracted_normalized)
+        # continue
 
         # normalize answer to DB as well in order to calc score later
-        entities_ans_normalized = []
-        for entity in entities:
-            name = entity['text'][0]
+        relations_ans_normalized = []
+        for relation_ans in relations:
+            source_bio_id = relation_ans['concept_1']
+            target_bio_id = relation_ans['concept_2']
+            # get entity name from entities
+            source_name = [e['text'][0] for e in entities if e['concept_id'] == source_bio_id][0]
+            target_name = [e['text'][0] for e in entities if e['concept_id'] == target_bio_id][0]
+            source_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == source_bio_id][0]
+            target_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == target_bio_id][0]
+            source_id = normalize(source_name, source_type)
+            target_id = normalize(target_name, target_type)
+            relation_ans['source_id'] = source_id
+            relation_ans['target_id'] = target_id
+            # name = entity['text'][0]
             category = entity['semantic_type_id']
-            # if category not in ['ChemicalEntity', 'DiseaseOrPhenotypicFeature', 'GeneOrGeneProduct']:
-            #     continue
-            ID = normalize(name, category)
-            entity['DBID'] = ID
+            
+            relation_ans['relation_type'] = relation_ans['type']
             entities_ans_normalized.append(entity)
 
-        score = calc_score(entities_extracted_normalized, entities_ans_normalized, abstract, abstract_offset)  # TODO
-        print(f'F1: {score}')
-        scores.append(score)
+        tp, fp, fn = calc_score(entities_extracted_normalized, entities_ans_normalized)
+        TP += tp
+        FP += fp
+        FN += fn
+        print(f'Current TP: {TP}, FP: {FP}, FN: {FN}')
+
 
         # disease_entities_extracted = [e for e in entities_extracted if e['category'] == 'Disease']
         # print(disease_entities_extracted)
@@ -155,4 +167,9 @@ for i, data in enumerate(datas['test']):
     else:
         print("No entities found.")
 
-print(sum(scores) / len(scores))
+print('TP: ', TP)
+print('FP: ', FP)
+print('FN: ', FN)
+print(f'P: {TP / (TP + FP)}')
+print(f'R: {TP / (TP + FN)}')
+print(f'F1: {2 * TP / (2 * TP + FP + FN)}')
