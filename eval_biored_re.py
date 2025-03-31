@@ -146,11 +146,9 @@ for i, data in enumerate(datas['test']):
             target_id = normalize(target_name, target_type)
             relation_ans['source_id'] = source_id
             relation_ans['target_id'] = target_id
-            # name = entity['text'][0]
-            category = entity['semantic_type_id']
-            
+
             relation_ans['relation_type'] = relation_ans['type']
-            entities_ans_normalized.append(entity)
+            entities_ans_normalized.append(relation_ans)
 
         tp, fp, fn = calc_score(entities_extracted_normalized, entities_ans_normalized)
         TP += tp
