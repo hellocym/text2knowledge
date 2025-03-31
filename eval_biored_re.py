@@ -148,9 +148,9 @@ for i, data in enumerate(datas['test']):
             relation_ans['target_id'] = target_id
 
             relation_ans['relation_type'] = relation_ans['type']
-            entities_ans_normalized.append(relation_ans)
+            relations_ans_normalized.append(relation_ans)
 
-        tp, fp, fn = calc_score(entities_extracted_normalized, entities_ans_normalized)
+        tp, fp, fn = calc_score(relations_extracted_normalized, relations_ans_normalized)
         TP += tp
         FP += fp
         FN += fn
