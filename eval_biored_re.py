@@ -80,7 +80,7 @@ symptom_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", 
 def normalize(name, category):
     if category in ['Disease', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
         model = disease_normalizer
-    if category in ['Symptom']:
+    elif category in ['Symptom']:
         model = symptom_normalizer
     elif category in ['Compound', 'ChemicalEntity']:
         model = chemical_normalizer
