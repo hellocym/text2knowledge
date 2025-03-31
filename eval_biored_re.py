@@ -134,7 +134,7 @@ for i, data in enumerate(datas['test']):
                 'target_id': target_id,
                 'relation_type': relation['relation_type'],
             })
-        print(relations_extracted_normalized)
+        # print(relations_extracted_normalized)
 
         # print(relations_extracted_normalized)
         # continue
@@ -145,27 +145,31 @@ for i, data in enumerate(datas['test']):
             source_bio_id = relation_ans['concept_1']
             target_bio_id = relation_ans['concept_2']
             # get entity name from entities
-            source_name = [e['text'][0] for e in entities if e['concept_id'] == source_bio_id][0]
-            target_name = [e['text'][0] for e in entities if e['concept_id'] == target_bio_id][0]
-            source_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == source_bio_id][0]
-            target_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == target_bio_id][0]
-            source_id = normalize(source_name, source_type)
-            target_id = normalize(target_name, target_type)
-            relation_ans['source_name'] = source_name
-            relation_ans['target_name'] = target_name
-            relation_ans['source_id'] = source_id
-            relation_ans['target_id'] = target_id
+            try:
+                source_name = [e['text'][0] for e in entities if e['concept_id'] == source_bio_id][0]
+                target_name = [e['text'][0] for e in entities if e['concept_id'] == target_bio_id][0]
+                source_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == source_bio_id][0]
+                target_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == target_bio_id][0]
+                source_id = normalize(source_name, source_type)
+                target_id = normalize(target_name, target_type)
+                relation_ans['source_name'] = source_name
+                relation_ans['target_name'] = target_name
+                relation_ans['source_id'] = source_id
+                relation_ans['target_id'] = target_id
 
-            # relation_ans['relation_type'] = relation_ans['type']
-            relations_ans_normalized.append({
-                'source_name': source_name,
-                'target_name': target_name,
-                'source_id': source_id,
-                'target_id': target_id,
-                'relation_type': relation_ans['type'],
-            })
-        print(relations_ans_normalized)
-        exit()
+                # relation_ans['relation_type'] = relation_ans['type']
+                relations_ans_normalized.append({
+                    'source_name': source_name,
+                    'target_name': target_name,
+                    'source_id': source_id,
+                    'target_id': target_id,
+                    'relation_type': relation_ans['type'],
+                })
+            except:
+                print(f'Cannot find entity with bio_id: {source_bio_id} or {target_bio_id}')
+                continue
+        # print(relations_ans_normalized)
+        # exit()
         tp, fp, fn = calc_score(relations_extracted_normalized, relations_ans_normalized)
         TP += tp
         FP += fp
