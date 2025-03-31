@@ -71,13 +71,17 @@ def calc_score(extracted, gt, text, offset):
     return F1
 
 
-disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/dict.txt", use_cuda=use_cuda))
-chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/dict.txt", use_cuda=use_cuda))
-gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/dict.txt", use_cuda=use_cuda))
+disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=use_cuda))
+chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_Compound.txt", use_cuda=use_cuda))
+gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=use_cuda))
+symptom_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Symptom.txt", use_cuda=use_cuda))
+
 
 def normalize(name, category):
-    if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
+    if category in ['Disease', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
         model = disease_normalizer
+    if category in ['Symptom']:
+        model = symptom_normalizer
     elif category in ['Compound', 'ChemicalEntity']:
         model = chemical_normalizer
     elif category in ['Gene', 'Protein', 'CellularComponent', 'GeneOrGeneProduct', 'CellLine', 'SequenceVariant']:
