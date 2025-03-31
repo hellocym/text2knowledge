@@ -127,7 +127,13 @@ for i, data in enumerate(datas['test']):
             relation['source_id'] = source_id
             relation['target_id'] = target_id
             
-            relations_extracted_normalized.append(relation)
+            relations_extracted_normalized.append({
+                'source_name': source_name,
+                'target_name': target_name,
+                'source_id': source_id,
+                'target_id': target_id,
+                'relation_type': relation['semantic_type_id'],
+            })
         print(relations_extracted_normalized)
 
         # print(relations_extracted_normalized)
@@ -145,11 +151,19 @@ for i, data in enumerate(datas['test']):
             target_type = [e['semantic_type_id'] for e in entities if e['concept_id'] == target_bio_id][0]
             source_id = normalize(source_name, source_type)
             target_id = normalize(target_name, target_type)
+            relation_ans['source_name'] = source_name
+            relation_ans['target_name'] = target_name
             relation_ans['source_id'] = source_id
             relation_ans['target_id'] = target_id
 
-            relation_ans['relation_type'] = relation_ans['type']
-            relations_ans_normalized.append(relation_ans)
+            # relation_ans['relation_type'] = relation_ans['type']
+            relations_ans_normalized.append({
+                'source_name': source_name,
+                'target_name': target_name,
+                'source_id': source_id,
+                'target_id': target_id,
+                'relation_type': relation_ans['type'],
+            })
         print(relations_ans_normalized)
         exit()
         tp, fp, fn = calc_score(relations_extracted_normalized, relations_ans_normalized)
