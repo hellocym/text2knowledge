@@ -7,8 +7,10 @@ from text2knowledge.strategy1 import extract_concepts
 from text2knowledge.normalizer import Normalizer, NormArg
 import json
 import contextlib
+import torch
 
 datas = load_dataset("bigbio/biored")
+use_cuda = torch.cuda.is_available()
 
 
 def find_substring_indices(text, substring):
@@ -69,9 +71,9 @@ def calc_score(extracted, gt, text, offset):
     return F1
 
 
-disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=False))
-chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_Compound.txt", use_cuda=False))
-gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=False))
+disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=use_cuda))
+chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_Compound.txt", use_cuda=use_cuda))
+gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=use_cuda))
 
 def normalize(name, category):
     if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
