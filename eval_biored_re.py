@@ -132,7 +132,7 @@ for i, data in enumerate(datas['test']):
                 'target_name': target_name,
                 'source_id': source_id,
                 'target_id': target_id,
-                'relation_type': relation['semantic_type_id'],
+                'relation_type': relation['relation_type'],
             })
         print(relations_extracted_normalized)
 
