@@ -71,9 +71,9 @@ def calc_score(extracted, gt, text, offset):
     return F1
 
 
-disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/dict.txt", use_cuda=use_cuda))
-chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/dict.txt", use_cuda=use_cuda))
-gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/dict.txt", use_cuda=use_cuda))
+disease_normalizer = Normalizer(NormArg("dmis-lab/biosyn-biobert-ncbi-disease", "./data/dictionary/merged/dict_Disease.txt", use_cuda=use_cuda))
+chemical_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc5cdr-chemical", "./data/dictionary/merged/dict_Compound.txt", use_cuda=use_cuda))
+gene_normalizer = Normalizer(NormArg("dmis-lab/biosyn-sapbert-bc2gn", "./data/dictionary/merged/dict_Gene.txt", use_cuda=use_cuda))
 
 def normalize(name, category):
     if category in ['Disease', 'Symptom', 'DiseaseOrPhenotypicFeature', 'OrganismTaxon']:
@@ -103,30 +103,24 @@ for i, data in enumerate(datas['test']):
 
     score = 0
     
-    relations_extracted = json.load(open(f'./extracted/biored/test_{i}.json', 'r'))
+    entities_extracted = json.load(open(f'./extracted/biored/test_{i}.json', 'r'))
     # print(entities_extracted)
     # continue
-    if relations_extracted:
-        
+    if entities_extracted:
+        # from pprint import pprint
+        # pprint([entity for entity in entities_extracted if ])
         # normalize extracted entities to DB
-        relations_extracted_normalized = []
-        for relation in relations_extracted:
-            source_name = relation['source_name']
-            source_type = relation['source_type']
-            target_name = relation['target_name']
-            target_type = relation['target_type']
-            source_id = normalize(source_name, source_type)
-            target_id = normalize(target_name, target_type)
+        entities_extracted_normalized = []
+        for entity in entities_extracted:
+            name = entity['entity']
+            category = entity['category']
+            # if category not in ['Gene', 'CellularComponent', 'Compound', 'Disease', 'Symptom', 'Protein']:
+            #     continue
+            ID = normalize(name, category)
+            entity['DBID'] = ID
+            entities_extracted_normalized.append(entity)
 
-            # print(source_name, source_type, source_id)
-            # print(target_name, target_type, target_id)
-            relation['source_id'] = source_id
-            relation['target_id'] = target_id
-            
-            relations_extracted_normalized.append(relation)
-
-        print(relations_extracted_normalized)
-        continue
+        
 
         # normalize answer to DB as well in order to calc score later
         entities_ans_normalized = []
